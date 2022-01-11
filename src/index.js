@@ -1,0 +1,9 @@
+import "./index.css";
+import Game from './game.js';
+
+
+const game = new Game();
+
+
+window.game = game;
+// console.log(game);
