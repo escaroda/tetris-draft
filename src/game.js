@@ -1,3 +1,5 @@
+import { pieces } from './pieces';
+
 class Game {
   score = 0;
   lines = 0;
@@ -20,36 +22,13 @@ class Game {
   }
 
   createPiece() {
-    return {
-      x: 0,
-      y: 0,
-      get blocks() {
-        return this.rotations[this.rotationIndex]
-      },
-      rotationIndex: 0,
-      rotations: [
-        [
-          [0, 1, 0],
-          [1, 1, 1],
-          [0, 0, 0],
-        ],
-        [
-          [0, 1, 0],
-          [0, 1, 1],
-          [0, 1, 0],
-        ],
-        [
-          [0, 0, 0],
-          [1, 1, 1],
-          [0, 1, 0],
-        ],
-        [
-          [0, 1, 0],
-          [1, 1, 0],
-          [0, 1, 0],
-        ],
-      ],
-    };
+    const randomIndex = Math.floor(Math.random() * pieces.length);
+    const { name, blocks } = pieces[randomIndex];
+    const piece = { name, blocks };
+    piece.x = Math.floor((this.playfieldWidth - blocks[0].length) / 2)
+    piece.y = 0;
+
+    return piece;
   }
 
   nextActivePiece() {
@@ -79,16 +58,30 @@ class Game {
     }
   }
 
-  movePieceLeft() {
-    this.movePiece(-1, 0);
+  movePieceLeft(deltaX = -1) {
+    this.movePiece(deltaX, 0);
   }
 
-  movePieceRight() {
-    this.movePiece(1, 0);
+  movePieceRight(deltaX = 1) {
+    this.movePiece(deltaX, 0);
   }
 
-  movePieceDown() {
-    this.movePiece(0, 1);
+  movePieceDown(deltaY = 1) {
+    this.movePiece(0, deltaY);
+  }
+
+  movePieceDownAboveLock(deltaY = 1) {
+    let moveDown = deltaY;
+    while (this.isValidMove(0, moveDown)) {
+      moveDown++
+    }
+    this.activePiece.y += moveDown - 1;
+  }
+
+  movePieceDownUntilLock(deltaY = 1) {
+    while (this.isValidMove(0, deltaY)) {
+      this.activePiece.y += 1;
+    }
   }
 
   movePiece(deltaX = 0, deltaY = 0) {
@@ -99,43 +92,43 @@ class Game {
   }
 
   rotateClockwise() {
-    if (this.isValidMove(0, 0, 1)) {
-      const rotationIndex = (this.activePiece.rotationIndex + 1) % this.activePiece.rotations.length;
-      this.activePiece.rotationIndex = rotationIndex;
+    if (this.activePiece.name !== 'O') { // Don't rotate square?
+      const rotatedBlocks = this.activePiece.blocks[0].map((val, index) => this.activePiece.blocks.map(row => row[index]).reverse());
+
+      if (this.isValidMove(0, 0, rotatedBlocks)) {
+        this.activePiece.blocks = rotatedBlocks;
+      }
     }
   }
 
-  isNotValidMove(deltaX = 0, deltaY = 0, deltaRotation = 0) {
+  isNotValidMove(deltaX = 0, deltaY = 0, blocks = this.activePiece.blocks) {
     const { x: originX, y: originY } = this.activePiece;
     const x = originX + deltaX;
     const y = originY + deltaY;
 
-    // TODO: Check rotations separately to jump(shift) out of collisions? 
-    const blocks = this.activePiece.rotations[(this.activePiece.rotationIndex + deltaRotation) % this.activePiece.rotations.length];
+    // TODO: Check rotations separately to jump(shift) out of bounds & collisions? 
 
     for (let i = 0; i < blocks.length; i++) {
       const line = blocks[i];
       for (let j = 0; j < line.length; j++) {
         const block = line[j];
-        if (block && (this.isOutOfBounds(x + j, y + i) || this.hasCollision(x + j, y + i))) return true
+        if (block && (this.isOutOfBounds(x + j, y + i) || this.hasCollision(x + j, y + i, !!deltaY, deltaY === 1))) return true
       }
     }
     return false
   }
 
-  isValidMove(deltaX = 0, deltaY = 0, deltaRotation = 0) {
-    return !this.isNotValidMove(deltaX, deltaY, deltaRotation)
+  isValidMove(deltaX = 0, deltaY = 0, blocks = this.activePiece.blocks) {
+    return !this.isNotValidMove(deltaX, deltaY, blocks)
   }
 
   isOutOfBounds(x, y) {
     return x < 0 || x >= this.playfield[0].length;
   }
 
-  hasCollision(x, y) {
+  hasCollision(x, y, isMoveDown, doLockActivePiece) { // doLockActivePiece is needed for movePieceDownAboveLock
     const hasCollision = y >= this.playfield.length || this.playfield[y][x] !== 0;
-    if (hasCollision) {
-      this.lockActivePiece()
-    }
+    if (hasCollision && isMoveDown && doLockActivePiece) this.lockActivePiece();
     return hasCollision
   }
   

@@ -12,24 +12,32 @@ window.view = view;
 view.render(game);
 
 document.addEventListener('keydown', event => {
-  event.preventDefault();
+  // console.log(event.keyCode);
   switch (event.keyCode) {
     case 37:
+      event.preventDefault();
       game.movePieceLeft();
       view.render(game);
       break;
     case 38:
+      event.preventDefault();
       game.rotateClockwise();
       view.render(game);
       break;
     case 39:
+      event.preventDefault();
       game.movePieceRight();
       view.render(game);
       break;
     case 40:
+      event.preventDefault();
       game.movePieceDown();
       view.render(game);
       break;
+    case 32: // Space
+      event.preventDefault();
+      game.movePieceDownAboveLock()
+      view.render(game);
   }
 })
 

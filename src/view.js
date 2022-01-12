@@ -1,4 +1,18 @@
 class View {
+
+  /**
+   * http://colorizer.org/
+   */
+  static colors = {
+    1: '#36a9a1', // cyan
+    2: '#3677a9', // blue
+    3: '#a96836', // orange
+    4: '#a9a136', // yellow
+    5: '#77a936', // green
+    6: '#6836a9', // purple
+    7: '#a9363e', // red
+  }
+
   constructor(element, width, height, rows, columns) {
     this.element = element;
     this.width = width;
@@ -31,7 +45,7 @@ class View {
       const line = playfield[i];
       for (let j = 0; j < line.length; j++) {
         const block = line[j];
-        if (block) this.renderBlock(j * this.blockWidth, i * this.blockHeight, 'red');
+        if (block) this.renderBlock(j * this.blockWidth, i * this.blockHeight, View.colors[block]);
       }
     }
   }
@@ -44,7 +58,7 @@ class View {
       for (let j = 0; j < line.length; j++) {
         const block = line[j];
         if (block) {
-          this.renderBlock((j + x) * this.blockWidth, (i + y) * this.blockHeight, 'red');
+          this.renderBlock((j + x) * this.blockWidth, (i + y) * this.blockHeight, View.colors[block]);
           // this.playfield[i + y][j + x] = block;
         }
       }
@@ -53,7 +67,7 @@ class View {
 
   renderBlock(x, y, color) {
     this.context.fillStyle = color;
-    this.context.strokeStyle = 'black';
+    this.context.strokeStyle = '#111111';
     this.context.lineWidth = 2;
 
     this.context.fillRect(x, y, this.blockWidth, this.blockHeight);
