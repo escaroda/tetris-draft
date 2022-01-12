@@ -4,42 +4,71 @@ class Game {
   level = 0;
   playfieldWidth = 10;
   playfieldHeight = 20;
-  playfield = [];
-  activePiece = {
-    x: 0,
-    y: 0,
-    get blocks() {
-      return this.rotations[this.rotationIndex]
-    },
-    rotationIndex: 0,
-    rotations: [
-      [
-        [0, 1, 0],
-        [1, 1, 1],
-        [0, 0, 0],
-      ],
-      [
-        [0, 1, 0],
-        [0, 1, 1],
-        [0, 1, 0],
-      ],
-      [
-        [0, 0, 0],
-        [1, 1, 1],
-        [0, 1, 0],
-      ],
-      [
-        [0, 1, 0],
-        [1, 1, 0],
-        [0, 1, 0],
-      ],
-    ]
-  }
 
   constructor() {
+    this.activePiece = this.createPiece();
+    this.nextPiece = this.createPiece();
+    this.playfield = this.createPlayfield();
+  }
+
+  createPlayfield() {
+    const playfield = [];
     for (let i = 0; i < this.playfieldHeight; i++) {
-      this.playfield[i] = new Array(this.playfieldWidth).fill(0);
+      playfield[i] = new Array(this.playfieldWidth).fill(0);
     }
+    return playfield
+  }
+
+  createPiece() {
+    return {
+      x: 0,
+      y: 0,
+      get blocks() {
+        return this.rotations[this.rotationIndex]
+      },
+      rotationIndex: 0,
+      rotations: [
+        [
+          [0, 1, 0],
+          [1, 1, 1],
+          [0, 0, 0],
+        ],
+        [
+          [0, 1, 0],
+          [0, 1, 1],
+          [0, 1, 0],
+        ],
+        [
+          [0, 0, 0],
+          [1, 1, 1],
+          [0, 1, 0],
+        ],
+        [
+          [0, 1, 0],
+          [1, 1, 0],
+          [0, 1, 0],
+        ],
+      ],
+    };
+  }
+
+  nextActivePiece() {
+    this.activePiece = this.nextPiece;
+    this.nextPiece = this.createPiece();
+  }
+
+  lockActivePiece() {
+    console.log('hasCollision', 'lockActivePiece')
+    const { x, y, blocks } = this.activePiece;
+
+    for (let i = 0; i < blocks.length; i++) {
+      const line = blocks[i];
+      for (let j = 0; j < line.length; j++) {
+        const block = line[j];
+        if (block) this.playfield[i + y][j + x] = block;
+      }
+    }
+    this.nextActivePiece();
   }
 
   clearPlayfield() {
@@ -63,27 +92,26 @@ class Game {
   }
 
   movePiece(deltaX = 0, deltaY = 0) {
-    this.clearPlayfield();
     if (this.isValidMove(deltaX, deltaY)) {
       this.activePiece.x += deltaX;
       this.activePiece.y += deltaY;
     }
-    this.drawPiece();
   }
 
   rotateClockwise() {
-    this.activePiece.rotationIndex = (this.activePiece.rotationIndex + 1) % this.activePiece.rotations.length;
+    if (this.isValidMove(0, 0, 1)) {
+      const rotationIndex = (this.activePiece.rotationIndex + 1) % this.activePiece.rotations.length;
+      this.activePiece.rotationIndex = rotationIndex;
+    }
   }
 
-  rotateCounterClockwise() {
-    this.activePiece.rotationIndex = this.activePiece.rotationIndex ? this.activePiece.rotationIndex - 1 : this.activePiece.rotations.length - 1;
-  }
-
-  isNotValidMove(deltaX = 0, deltaY = 0) {
+  isNotValidMove(deltaX = 0, deltaY = 0, deltaRotation = 0) {
     const { x: originX, y: originY } = this.activePiece;
     const x = originX + deltaX;
     const y = originY + deltaY;
-    const blocks = this.activePiece.blocks;
+
+    // TODO: Check rotations separately to jump(shift) out of collisions? 
+    const blocks = this.activePiece.rotations[(this.activePiece.rotationIndex + deltaRotation) % this.activePiece.rotations.length];
 
     for (let i = 0; i < blocks.length; i++) {
       const line = blocks[i];
@@ -95,30 +123,22 @@ class Game {
     return false
   }
 
-  isValidMove(deltaX = 0, deltaY = 0) {
-    return !this.isNotValidMove(deltaX, deltaY)
+  isValidMove(deltaX = 0, deltaY = 0, deltaRotation = 0) {
+    return !this.isNotValidMove(deltaX, deltaY, deltaRotation)
   }
 
   isOutOfBounds(x, y) {
-    return x < 0 || x >= this.playfield[0].length || y >= this.playfield.length
+    return x < 0 || x >= this.playfield[0].length;
   }
 
   hasCollision(x, y) {
-    return this.playfield[y][x] !== 0
+    const hasCollision = y >= this.playfield.length || this.playfield[y][x] !== 0;
+    if (hasCollision) {
+      this.lockActivePiece()
+    }
+    return hasCollision
   }
   
-  drawPiece() {
-    const { x, y, blocks } = this.activePiece;
-
-    for (let i = 0; i < blocks.length; i++) {
-      const line = blocks[i];
-      for (let j = 0; j < line.length; j++) {
-        const block = line[j];
-        if (block) this.playfield[i + y][j + x] = block;
-      }
-    }
-  }
-
 }
 
 export default Game;
