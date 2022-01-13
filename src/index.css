@@ -1,48 +1,26 @@
 body {
-    margin: 0;
-    background-color: black;
-}
-
-#root {
-    padding: 3rem;
-    text-align: center
+  margin: 0;
+  padding: 4rem;
+  background-color: #111;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
-    font-family: 'Press Start 2P', Consolas, monospace;
-    color: white;
+  margin: 1rem 0 1.6rem 0;
+  font-size: 1.2rem;
+  font-family: 'Press Start 2P', Consolas, monospace;
+  color: rgb(169, 169, 169);
+  
 }
 
-.logo > span:nth-child(1n) {
-  color: #a9363e;
+canvas {
+  display: flex;
+  margin: 0 auto;
+  /* align-self: center  */
 }
 
-.logo > span:nth-child(2n) {
-  color: #a96836;
-}
-
-.logo > span:nth-child(3n) {
-  color: #a9a136;
-}
-
-.logo > span:nth-child(4n) {
-  color: #77a936;
-}
-
-.logo > span:nth-child(5n) {
-  color: #36a9a1;
-}
-
-.logo > span:nth-child(6n) {
-  color: #3677a9;
-}
-
-.logo > span:nth-child(7n) {
-  color: #6836a9;
-}
-
-#root canvas {
-    display: block;
-    margin: 0 auto;
-    border: 4px solid rgb(169, 169, 169);
+canvas:last-child {
+  border: 4px solid rgb(169, 169, 169);
 }

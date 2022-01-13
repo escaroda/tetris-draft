@@ -32,12 +32,16 @@ class Game {
   }
 
   nextActivePiece() {
-    this.activePiece = this.nextPiece;
-    this.nextPiece = this.createPiece();
+    
+    if (this.isNotValidMove(0, 0, this.nextPiece)) {
+      console.log('GAME OVER');
+    } else {
+      this.activePiece = this.nextPiece; // TODO: Check if nextPiece(activePiece) has collisions
+      this.nextPiece = this.createPiece();
+    }
   }
 
   lockActivePiece() {
-    console.log('hasCollision', 'lockActivePiece')
     const { x, y, blocks } = this.activePiece;
 
     for (let i = 0; i < blocks.length; i++) {
@@ -65,8 +69,16 @@ class Game {
         linesToAdd.push(new Array(this.playfieldWidth).fill(0))
       }
       this.playfield.unshift(...linesToAdd);
+      this.updateScore(linesToAdd.length);
     }
     
+  }
+
+  updateScore(removedLines) {
+    this.lines += removedLines;
+    this.level = Math.floor(this.lines * 0.1);
+    this.score += 19 * Math.pow(removedLines, 2) * (this.level + 1);
+    console.log('state', this.lines, this.score, this.level);
   }
 
   clearPlayfield() {
@@ -120,13 +132,12 @@ class Game {
     }
   }
 
-  isNotValidMove(deltaX = 0, deltaY = 0, blocks = this.activePiece.blocks) {
-    const { x: originX, y: originY } = this.activePiece;
+  isNotValidMove(deltaX = 0, deltaY = 0, piece = this.activePiece) {
+    const { x: originX, y: originY, blocks } = piece;
     const x = originX + deltaX;
     const y = originY + deltaY;
 
     // TODO: Check rotations separately to jump(shift) out of bounds & collisions? 
-
     for (let i = 0; i < blocks.length; i++) {
       const line = blocks[i];
       for (let j = 0; j < line.length; j++) {
@@ -137,8 +148,8 @@ class Game {
     return false
   }
 
-  isValidMove(deltaX = 0, deltaY = 0, blocks = this.activePiece.blocks) {
-    return !this.isNotValidMove(deltaX, deltaY, blocks)
+  isValidMove(deltaX = 0, deltaY = 0, piece = this.activePiece) {
+    return !this.isNotValidMove(deltaX, deltaY, piece)
   }
 
   isOutOfBounds(x, y) {

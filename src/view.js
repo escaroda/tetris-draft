@@ -1,5 +1,7 @@
 class View {
 
+  lineWidth = 2;
+
   /**
    * http://colorizer.org/
    */
@@ -13,27 +15,36 @@ class View {
     7: '#a9363e', // red
   }
 
-  constructor(element, width, height, rows, columns) {
+  constructor(element, blockWidth, blockHeight, rows, columns) {
     this.element = element;
-    this.width = width;
-    this.height = height;
+    this.blockWidth = blockWidth;
+    this.blockHeight = blockHeight;
+
+    this.width = this.blockWidth * columns;
+    this.height = this.blockHeight * rows;
+
+    this.infoCanvas = document.createElement('canvas');
+    this.infoCanvas.width = this.width;
+    this.infoCanvas.height = this.height / 6;
+    this.infoContext = this.infoCanvas.getContext('2d');
 
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.context = this.canvas.getContext('2d');
 
+    this.element.appendChild(this.infoCanvas);
     this.element.appendChild(this.canvas);
 
-    this.blockWidth = this.width / columns;
-    this.blockHeight = this.height / rows;
+
 
   }
 
   render(game) {
     this.clearScreen();
     this.renderPlayfield(game.playfield);
-    this.renderActivePiece(game.activePiece);
+    this.renderPiece(this.context, game.activePiece);
+    this.renderInfoPanel(game)
   }
 
   clearScreen() {
@@ -45,33 +56,46 @@ class View {
       const line = playfield[i];
       for (let j = 0; j < line.length; j++) {
         const block = line[j];
-        if (block) this.renderBlock(j * this.blockWidth, i * this.blockHeight, View.colors[block]);
+        if (block) this.renderBlock(this.context, j * this.blockWidth, i * this.blockHeight, View.colors[block]);
       }
     }
   }
 
-  renderActivePiece(activePiece) {
+  renderPiece(context, activePiece, shiftX = 0, shiftY = 0) {
     const { x, y, blocks } = activePiece;
 
     for (let i = 0; i < blocks.length; i++) {
       const line = blocks[i];
       for (let j = 0; j < line.length; j++) {
         const block = line[j];
-        if (block) {
-          this.renderBlock((j + x) * this.blockWidth, (i + y) * this.blockHeight, View.colors[block]);
-          // this.playfield[i + y][j + x] = block;
-        }
+        if (block) this.renderBlock(context, (j + x + shiftX) * this.blockWidth, (i + y + shiftY) * this.blockHeight, View.colors[block]);
       }
     }
   }
 
-  renderBlock(x, y, color) {
-    this.context.fillStyle = color;
-    this.context.strokeStyle = '#111111';
-    this.context.lineWidth = 2;
+  renderBlock(context, x, y, color) {
+    context.fillStyle = color;
+    context.strokeStyle = '#111';
+    context.lineWidth = this.lineWidth;
 
-    this.context.fillRect(x, y, this.blockWidth, this.blockHeight);
-    this.context.strokeRect(x, y, this.blockWidth, this.blockHeight);
+    context.fillRect(x, y, this.blockWidth, this.blockHeight);
+    context.strokeRect(x, y, this.blockWidth, this.blockHeight);
+  }
+
+  renderInfoPanel({ level, score, lines, nextPiece }) {
+    this.infoContext.clearRect(0, 0, this.width, this.height);
+    
+    this.infoContext.textAlign = 'start';
+    this.infoContext.textBaseline = 'top';
+    this.infoContext.fillStyle = '#bbbbbb';
+    this.infoContext.font = '12px "Press Start 2P"';
+    
+    this.infoContext.fillText(`Score ${score}`, 0, 0);
+    this.infoContext.fillText(`Lines ${lines}`, 0, 20);
+    this.infoContext.fillText(`Level ${level}`, 0, 40);
+
+    this.renderPiece(this.infoContext, nextPiece, 3);
+    
   }
 
 }
