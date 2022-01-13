@@ -47,7 +47,26 @@ class Game {
         if (block) this.playfield[i + y][j + x] = block;
       }
     }
+    this.removeSolidLines();
     this.nextActivePiece();
+  }
+
+  removeSolidLines() {
+    const linesToRemove = [];
+    for (const lineIndex in this.playfield) {
+      if (!~this.playfield[lineIndex].indexOf(0)) linesToRemove.push(lineIndex) // Remove if there is no zeros
+    }
+
+    if (linesToRemove.length) {
+      const linesToAdd = []
+
+      while (linesToRemove.length) {
+        this.playfield.splice(linesToRemove.pop(), 1)
+        linesToAdd.push(new Array(this.playfieldWidth).fill(0))
+      }
+      this.playfield.unshift(...linesToAdd);
+    }
+    
   }
 
   clearPlayfield() {

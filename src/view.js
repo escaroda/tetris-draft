@@ -33,7 +33,7 @@ class View {
   render(game) {
     this.clearScreen();
     this.renderPlayfield(game.playfield);
-    this.renderActivePiece(game.activePiece)
+    this.renderActivePiece(game.activePiece);
   }
 
   clearScreen() {
