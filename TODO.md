@@ -1,0 +1,6 @@
+- Change piece color depending on game level
+- Animate removed lines
+- Flash screen and pause a sec when remove 4 lines at once
+- Continuous press of control keys for responsiveness
+- Sound feedback
+- Three.js as a view layer?

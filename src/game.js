@@ -2,8 +2,10 @@ import { pieces } from './pieces';
 
 class Game {
   score = 0;
+  scoreMultiplier = 15;
   lines = 0;
   level = 0;
+  speed = 1000;
   playfieldWidth = 10;
   playfieldHeight = 20;
 
@@ -33,7 +35,7 @@ class Game {
 
   nextActivePiece() {
     
-    if (this.isNotValidMove(0, 0, this.nextPiece)) {
+    if (this.isNotValidMove(0, 0, this.nextPiece.blocks, true)) {
       console.log('GAME OVER');
     } else {
       this.activePiece = this.nextPiece; // TODO: Check if nextPiece(activePiece) has collisions
@@ -77,7 +79,8 @@ class Game {
   updateScore(removedLines) {
     this.lines += removedLines;
     this.level = Math.floor(this.lines * 0.1);
-    this.score += 19 * Math.pow(removedLines, 2) * (this.level + 1);
+    this.speed = this.level < 10 ? 1000 - this.level * 100 : 100;
+    this.score += this.scoreMultiplier * Math.pow(removedLines, 2) * (this.level + 1);
     console.log('state', this.lines, this.score, this.level);
   }
 
@@ -132,8 +135,8 @@ class Game {
     }
   }
 
-  isNotValidMove(deltaX = 0, deltaY = 0, piece = this.activePiece) {
-    const { x: originX, y: originY, blocks } = piece;
+  isNotValidMove(deltaX = 0, deltaY = 0, blocks = this.activePiece.blocks, isNextPiecePosition = false) {
+    const { x: originX, y: originY } = isNextPiecePosition ? this.nextPiece : this.activePiece;
     const x = originX + deltaX;
     const y = originY + deltaY;
 
@@ -148,8 +151,8 @@ class Game {
     return false
   }
 
-  isValidMove(deltaX = 0, deltaY = 0, piece = this.activePiece) {
-    return !this.isNotValidMove(deltaX, deltaY, piece)
+  isValidMove(deltaX = 0, deltaY = 0, blocks = this.activePiece.blocks, isNextPiecePosition = false) {
+    return !this.isNotValidMove(deltaX, deltaY, blocks, isNextPiecePosition)
   }
 
   isOutOfBounds(x, y) {

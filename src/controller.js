@@ -2,15 +2,27 @@ class Controller {
   constructor(game, view) {
     this.game = game;
     this.view = view;
-
-    // setInterval(() => {
-    //   this.game.movePieceDown();
-    //   this.view.render(game);
-    // }, 1000)
     
     this.assignControls();
 
     view.render(game);
+  }
+
+  startGame() {
+    this.timer = setInterval(() => {
+      this.game.movePieceDown();
+      this.view.render(this.game);
+    }, this.game.speed)
+  }
+
+  pauseGame() {
+    clearInterval(this.timer);
+    this.timer = null;
+  }
+  
+  updateTimer() {
+    clearInterval(this.timer);
+    this.startGame();
   }
 
   assignControls() {

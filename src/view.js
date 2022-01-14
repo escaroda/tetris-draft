@@ -88,7 +88,7 @@ class View {
     this.infoContext.textAlign = 'start';
     this.infoContext.textBaseline = 'top';
     this.infoContext.fillStyle = '#bbbbbb';
-    this.infoContext.font = '12px "Press Start 2P"';
+    this.infoContext.font = 'bold 16px "Cascadia Code", Menlo, monospaced';
     
     this.infoContext.fillText(`Score ${score}`, 0, 0);
     this.infoContext.fillText(`Lines ${lines}`, 0, 20);
