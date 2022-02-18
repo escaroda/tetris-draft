@@ -1,6 +1,8 @@
 import { pieces } from './pieces';
 
+
 class Game {
+  status = 1;
   score = 0;
   scoreMultiplier = 15;
   lines = 0;
@@ -34,9 +36,9 @@ class Game {
   }
 
   nextActivePiece() {
-    
     if (this.isNotValidMove(0, 0, this.nextPiece.blocks, true)) {
       console.log('GAME OVER');
+      this.status = 0;
     } else {
       this.activePiece = this.nextPiece; // TODO: Check if nextPiece(activePiece) has collisions
       this.nextPiece = this.createPiece();
@@ -73,7 +75,6 @@ class Game {
       this.playfield.unshift(...linesToAdd);
       this.updateScore(linesToAdd.length);
     }
-    
   }
 
   updateScore(removedLines) {
@@ -81,7 +82,6 @@ class Game {
     this.level = Math.floor(this.lines * 0.1);
     this.speed = this.level < 10 ? 1000 - this.level * 100 : 100;
     this.score += this.scoreMultiplier * Math.pow(removedLines, 2) * (this.level + 1);
-    console.log('state', this.lines, this.score, this.level);
   }
 
   clearPlayfield() {

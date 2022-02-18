@@ -1,5 +1,4 @@
 class View {
-
   lineWidth = 2;
 
   /**
@@ -35,15 +34,14 @@ class View {
 
     this.element.appendChild(this.infoCanvas);
     this.element.appendChild(this.canvas);
-
-
-
   }
 
   render(game) {
     this.clearScreen();
-    this.renderPlayfield(game.playfield);
-    this.renderPiece(this.context, game.activePiece);
+    if (game.status === 1) {
+      this.renderPlayfield(game.playfield);
+      this.renderPiece(this.context, game.activePiece);
+    }
     this.renderInfoPanel(game)
   }
 
@@ -95,7 +93,6 @@ class View {
     this.infoContext.fillText(`Level ${level}`, 0, 40);
 
     this.renderPiece(this.infoContext, nextPiece, 3);
-    
   }
 
 }

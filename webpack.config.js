@@ -42,16 +42,6 @@ module.exports = {
           use: ['html-loader']
         },
 
-        // JS
-        // {
-        //   test: /\.js$/,
-        //   exclude: /node_modules/,
-        //   use:
-        //     [
-        //       'babel-loader'
-        //     ]
-        // },
-
         // CSS
         {
           test: /\.css$/,
